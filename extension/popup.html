@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Vault</title>
+<style>
+:root{--bg:#0a0a0a;--surface:rgba(255,255,255,.05);--surface-hover:rgba(255,255,255,.08);--border:rgba(255,255,255,.1);--text:#fff;--text-dim:rgba(255,255,255,.5);--accent:#00d4ff;--accent2:#8b5cf6;--radius:12px;--font:system-ui,-apple-system,sans-serif;--mono:'SF Mono','JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:380px;font-family:var(--font);background:var(--bg);color:var(--text);padding:16px;user-select:none;-webkit-user-select:none;overflow-x:hidden}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.header h1{font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text-dim)}
+.header .extras{display:flex;gap:4px}
+.header .extras button{background:none;border:none;color:var(--text-dim);padding:4px 8px;border-radius:6px;font-size:10px;cursor:pointer;transition:all .2s;font-family:inherit}
+.header .extras button:hover{color:var(--text);background:var(--surface-hover)}
+.header .extras button.active{color:var(--accent);background:rgba(0,212,255,.1)}
+.pw-display{position:relative;margin-bottom:12px}
+.pw-display input{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:10px;padding:14px 44px 14px 14px;font-family:var(--mono);font-size:15px;color:var(--text);outline:none;letter-spacing:.5px;transition:border .2s}
+.pw-display input:focus{border-color:var(--accent)}
+.pw-display .cpy{position:absolute;top:8px;right:8px;background:var(--surface-hover);border:1px solid var(--border);border-radius:6px;color:var(--text-dim);width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.pw-display .cpy:hover{border-color:var(--accent);color:var(--accent)}
+.pw-display .cpy.copied{color:var(--accent);border-color:var(--accent)}
+.pw-display .cpy svg{width:14px;height:14px}
+.strength{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.strength .bar{flex:1;height:3px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.strength .bar .fill{height:100%;border-radius:3px;transition:all .4s;width:0%}
+.strength .label{font-size:10px;font-weight:500;white-space:nowrap;min-width:65px;text-align:right;color:var(--text-dim);transition:color .4s}
+.control-group{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:10px}
+.row label{font-size:11px;color:var(--text-dim);min-width:44px}
+.slider-wrap{flex:1}
+.slider-wrap input[type=range]{width:100%;height:3px;background:rgba(255,255,255,.08);border:none;border-radius:2px;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer}
+.slider-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);cursor:pointer;box-shadow:0 0 0 1px var(--border);transition:transform .2s}
+.slider-wrap input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
+.slider-val{font-size:11px;font-weight:600;color:var(--text);min-width:24px;text-align:center;font-family:var(--mono)}
+.modes{display:flex;gap:3px;margin-bottom:10px}
+.modes button{padding:4px 10px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text-dim);font-size:10px;cursor:pointer;transition:all .2s;font-family:inherit;font-weight:500}
+.modes button:hover{color:var(--text);background:var(--surface-hover)}
+.modes button.active{background:rgba(0,212,255,.1);border-color:var(--accent);color:var(--accent)}
+.toggles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.toggles button{display:flex;align-items:center;justify-content:center;gap:5px;padding:6px 8px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .2s;color:var(--text-dim);font-size:10px;font-family:inherit}
+.toggles button:hover{background:var(--surface-hover)}
+.toggles button.active{border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,.06)}
+.toggles button .dot{width:6px;height:6px;border-radius:50%;border:1px solid currentColor;transition:all .2s}
+.toggles button.active .dot{background:currentColor}
+.actions{display:flex;gap:6px;margin-top:10px}
+.actions button{flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px}
+.actions .primary{background:var(--accent);color:#000;border-color:var(--accent)}
+.actions .primary:hover{filter:brightness(1.1)}
+.actions .secondary{background:rgba(255,255,255,.04);color:var(--text)}
+.actions .secondary:hover{background:var(--surface-hover)}
+.actions .autofill{background:rgba(139,92,246,.15);color:var(--accent2);border-color:var(--accent2)}
+.actions .autofill:hover{background:rgba(139,92,246,.25)}
+.footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
+.footer .status{font-size:9px;color:var(--text-dim);opacity:.6}
+.footer a{font-size:9px;color:var(--text-dim);text-decoration:none;transition:color .2s}
+.footer a:hover{color:var(--accent)}
+
+/* Vault view */
+.vault-view{display:none;margin-top:4px}
+.vault-view .v-search{display:flex;gap:6px;margin-bottom:8px}
+.vault-view .v-search input{flex:1;padding:6px 10px;background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:11px;outline:none;font-family:inherit}
+.vault-view .v-search input:focus{border-color:var(--accent)}
+.vault-view .v-search input::placeholder{color:var(--text-dim)}
+.vault-view .v-list{max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:3px}
+.vault-view .v-list::-webkit-scrollbar{width:3px}
+.vault-view .v-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.vault-view .v-item{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:6px;cursor:pointer;transition:all .2s}
+.vault-view .v-item:hover{background:var(--surface-hover)}
+.vault-view .v-item .vi-c{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.vault-view .v-item .vi-t{flex:1;min-width:0}
+.vault-view .v-item .vi-t .vi-n{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vault-view .v-item .vi-t .vi-s{font-size:9px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vault-view .v-item .vi-del{background:none;border:none;color:var(--text-dim);cursor:pointer;padding:3px;border-radius:3px;opacity:0;transition:all .2s;display:flex}
+.vault-view .v-item:hover .vi-del{opacity:.6}
+.vault-view .v-item .vi-del:hover{opacity:1;color:var(--accent)}
+.vault-empty{text-align:center;padding:20px 10px;color:var(--text-dim);font-size:11px;line-height:1.5}
+
+@keyframes ripple{0%{box-shadow:0 0 0 0 rgba(0,212,255,.4)}100%{box-shadow:0 0 0 16px rgba(0,212,255,0)}}
+.ripple{animation:ripple .4s ease-out}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1 id="viewTitle">Generator</h1>
+  <div class="extras">
+    <button data-view="gen" class="active">Gen</button>
+    <button data-view="vault" id="vaultBtn">Vault</button>
+    <button data-view="settings" id="settingsBtn">Settings</button>
+  </div>
+</div>
+
+<!-- Generator View -->
+<div id="viewGen">
+  <div class="pw-display">
+    <input type="text" id="pwOutput" readonly spellcheck="false" value="">
+    <button class="cpy" id="cpyBtn" title="Copy">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+    </button>
+  </div>
+
+  <div class="strength">
+    <div class="bar"><div class="fill" id="strFill"></div></div>
+    <span class="label" id="strLabel">Excellent</span>
+  </div>
+
+  <div class="modes" id="modeRow">
+    <button class="active" data-mode="random">Random</button>
+    <button data-mode="memorable">Memorable</button>
+    <button data-mode="pin">PIN</button>
+    <button data-mode="passphrase">Phrase</button>
+  </div>
+
+  <div class="control-group">
+    <div class="row">
+      <label>Length</label>
+      <div class="slider-wrap"><input type="range" id="lenSlider" min="4" max="128" value="24" step="1"></div>
+      <span class="slider-val" id="lenDisp">24</span>
+    </div>
+
+    <div class="toggles" id="toggles">
+      <button class="active" data-char="upper"><span class="dot"></span>A-Z</button>
+      <button class="active" data-char="lower"><span class="dot"></span>a-z</button>
+      <button class="active" data-char="numbers"><span class="dot"></span>0-9</button>
+      <button class="active" data-char="symbols"><span class="dot"></span>!@#$%</button>
+      <button data-char="spaces"><span class="dot"></span>Spc</button>
+      <button data-char="noambig"><span class="dot"></span>NoAmb</button>
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="genBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Generate</button>
+      <button class="secondary" id="saveBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save</button>
+      <button class="autofill" id="fillBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><path d="M4 20l4-16h8l4 16"/><path d="M9 12h6"/></svg> Fill</button>
+    </div>
+  </div>
+</div>
+
+<!-- Vault View -->
+<div class="vault-view" id="viewVault">
+  <div class="v-search">
+    <input type="text" id="vSearch" placeholder="Search vault...">
+  </div>
+  <div class="v-list" id="vList"></div>
+</div>
+
+<!-- Settings View (hidden) -->
+<div class="vault-view" id="viewSettings" style="padding:10px 0">
+  <div style="font-size:11px;color:var(--text-dim);line-height:1.6">
+    <strong style="color:var(--text)">Keyboard Shortcut:</strong><br>
+    <code style="background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;font-size:10px">Ctrl+Shift+V</code> to open popup
+  </div>
+</div>
+
+<div class="footer">
+  <span class="status" id="fieldStatus">No input focused</span>
+  <a href="https://djxdtho.github.io/password-generator/" target="_blank">Open full app →</a>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
