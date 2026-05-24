@@ -45,11 +45,5 @@
       },
       "description": "Open Vault password generator"
     }
-  },
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "vault@aa-elements",
-      "strict_min_version": "109.0"
-    }
   }
 }

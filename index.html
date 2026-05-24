@@ -341,19 +341,19 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
       </button>
     </div>
     <div id="chromeSteps">
-      <div class="step"><span class="num">1</span><div class="txt"><strong>Download</strong> the extension zip below</div></div>
-      <div class="step"><span class="num">2</span><div class="txt">Open <code>chrome://extensions</code></div></div>
+      <div class="step"><span class="num">1</span><div class="txt"><strong>Download</strong> the Chrome extension zip below</div></div>
+      <div class="step"><span class="num">2</span><div class="txt">Unzip and open <code>chrome://extensions</code></div></div>
       <div class="step"><span class="num">3</span><div class="txt">Enable <strong>Developer mode</strong> (top right)</div></div>
-      <div class="step"><span class="num">4</span><div class="txt">Click <strong>Load unpacked</strong> and select the extracted folder</div></div>
+      <div class="step"><span class="num">4</span><div class="txt">Click <strong>Load unpacked</strong> and select the <code>extension-chrome</code> folder</div></div>
     </div>
     <div id="firefoxSteps" style="display:none">
-      <div class="step"><span class="num">1</span><div class="txt"><strong>Download</strong> the extension zip below</div></div>
-      <div class="step"><span class="num">2</span><div class="txt">Open <code>about:debugging#/runtime/this-firefox</code></div></div>
+      <div class="step"><span class="num">1</span><div class="txt"><strong>Download</strong> the Firefox extension zip below</div></div>
+      <div class="step"><span class="num">2</span><div class="txt">Unzip and open <code>about:debugging#/runtime/this-firefox</code></div></div>
       <div class="step"><span class="num">3</span><div class="txt">Click <strong>Load Temporary Add-on</strong></div></div>
-      <div class="step"><span class="num">4</span><div class="txt">Select <code>manifest.json</code> inside the extracted folder</div></div>
+      <div class="step"><span class="num">4</span><div class="txt">Select <code>manifest.json</code> inside the <code>extension-firefox</code> folder</div></div>
     </div>
     <div class="dl-action">
-      <a href="https://github.com/djxdtho/password-generator/raw/master/vault-extension.zip" target="_blank" id="dlLink">Download Zip</a>
+      <a href="https://github.com/djxdtho/password-generator/raw/master/vault-extension-chrome.zip" target="_blank" id="dlLink">Download for Chrome</a>
       <button id="installClose">Close</button>
     </div>
   </div>
@@ -775,6 +775,8 @@ document.querySelectorAll('.browser-opt button').forEach(b=>{
     const isChrome=b.dataset.browser==='chrome';
     $('chromeSteps').style.display=isChrome?'block':'none';
     $('firefoxSteps').style.display=isChrome?'none':'block';
+    $('dlLink').textContent=isChrome?'Download for Chrome':'Download for Firefox';
+    $('dlLink').href=isChrome?'https://github.com/djxdtho/password-generator/raw/master/vault-extension-chrome.zip':'https://github.com/djxdtho/password-generator/raw/master/vault-extension-firefox.zip';
   });
 });
 
