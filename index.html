@@ -28,6 +28,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .nav-btn{background:none;border:none;color:var(--text-dim);padding:6px 12px;border-radius:8px;font-size:11px;font-weight:500;cursor:pointer;transition:all .3s;font-family:inherit;letter-spacing:.3px}
 .nav-btn:hover{color:var(--text);background:var(--surface-hover)}
 .nav-btn.active{color:var(--accent);background:rgba(0,212,255,.1)}
+.dl-btn{background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);color:var(--accent2);padding:6px 10px;border-radius:8px;font-size:10px;font-weight:600;cursor:pointer;transition:all .3s;font-family:inherit;letter-spacing:.3px;text-decoration:none;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.dl-btn:hover{background:rgba(139,92,246,.2);border-color:var(--accent2);box-shadow:0 0 20px rgba(139,92,246,.15)}
 .password-display{position:relative;margin-bottom:16px}
 .password-display textarea{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:12px;padding:16px 48px 16px 16px;font-family:var(--mono);font-size:clamp(1rem,3.5vw,1.4rem);color:var(--text);resize:none;outline:none;line-height:1.4;min-height:60px;transition:border .2s;letter-spacing:.5px;font-weight:400;overflow:hidden}
 .password-display textarea:focus{border-color:var(--accent)}
@@ -157,10 +159,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
   <div class="card">
     <div class="card-header">
       <h1 id="sectionTitle">Password Generator</h1>
-      <div class="nav">
-        <button class="nav-btn active" data-view="generate">Generate</button>
-        <button class="nav-btn" data-view="vault">Vault</button>
-        <button class="nav-btn" data-view="security">Security</button>
+      <div style="display:flex;align-items:center;gap:6px">
+        <a class="dl-btn" href="https://github.com/djxdtho/password-generator/raw/master/vault-extension.zip" target="_blank" title="Download browser extension"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Extension</a>
+        <div class="nav">
+          <button class="nav-btn active" data-view="generate">Generate</button>
+          <button class="nav-btn" data-view="vault">Vault</button>
+          <button class="nav-btn" data-view="security">Security</button>
+        </div>
       </div>
     </div>
 
