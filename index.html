@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="description" content="Password generator & vault — secure, minimal, elegant.">
+<meta name="theme-color" content="#0a0a0a">
+<title>vault — AA Elements</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2300d4ff'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='15' y='25' width='70' height='55' rx='8' fill='none' stroke='url(%23g)' stroke-width='5'/%3E%3Ccircle cx='50' cy='50' r='10' fill='none' stroke='url(%23g)' stroke-width='4'/%3E%3Ccircle cx='50' cy='50' r='3' fill='url(%23g)'/%3E%3Crect x='45' y='48' width='12' height='4' rx='1' fill='url(%23g)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--surface:rgba(255,255,255,.04);--surface-hover:rgba(255,255,255,.07);--border:rgba(255,255,255,.08);--text:#fff;--text-dim:rgba(255,255,255,.55);--accent:#00d4ff;--accent2:#8b5cf6;--danger:#ef4444;--success:#3fb950;--warning:#f59e0b;--radius:16px;--font:'Inter',system-ui,-apple-system,sans-serif;--mono:'JetBrains Mono','SF Mono',monospace;--glass:rgba(255,255,255,.03);--blur:24px}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;align-items:center;justify-content:center;transition:background .8s ease,color .5s ease;user-select:none;-webkit-user-select:none}
+.bg-layer{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.bg-layer .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.25;animation:orbFloat 20s ease-in-out infinite alternate}
+.bg-layer .orb:nth-child(1){width:500px;height:500px;background:var(--accent);top:-10%;left:-10%;animation-delay:0s}
+.bg-layer .orb:nth-child(2){width:400px;height:400px;background:var(--accent2);bottom:-15%;right:-10%;animation-delay:-7s}
+.bg-layer .orb:nth-child(3){width:300px;height:300px;background:var(--accent);top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:-14s;opacity:.12}
+@keyframes orbFloat{0%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,-40px) scale(1.1)}66%{transform:translate(-30px,50px) scale(.9)}100%{transform:translate(40px,30px) scale(1.05)}}
+.app{position:relative;z-index:1;width:100%;max-width:520px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--surface);backdrop-filter:blur(calc(var(--blur)*1px));-webkit-backdrop-filter:blur(calc(var(--blur)*1px));border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:background .5s,border-color .5s}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-header h1{font-size:13px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text-dim)}
+.nav{display:flex;gap:4px}
+.nav-btn{background:none;border:none;color:var(--text-dim);padding:6px 12px;border-radius:8px;font-size:11px;font-weight:500;cursor:pointer;transition:all .3s;font-family:inherit;letter-spacing:.3px}
+.nav-btn:hover{color:var(--text);background:var(--surface-hover)}
+.nav-btn.active{color:var(--accent);background:rgba(0,212,255,.1)}
+.password-display{position:relative;margin-bottom:16px}
+.password-display textarea{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:12px;padding:16px 48px 16px 16px;font-family:var(--mono);font-size:clamp(1rem,3.5vw,1.4rem);color:var(--text);resize:none;outline:none;line-height:1.4;min-height:60px;transition:border .2s;letter-spacing:.5px;font-weight:400;overflow:hidden}
+.password-display textarea:focus{border-color:var(--accent)}
+.password-display .copy-btn{position:absolute;top:12px;right:12px;background:var(--surface-hover);border:1px solid var(--border);border-radius:8px;color:var(--text-dim);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s}
+.password-display .copy-btn:hover{color:var(--accent);border-color:var(--accent);background:rgba(0,212,255,.08)}
+.password-display .copy-btn.copied{color:var(--success);border-color:var(--success)}
+.password-display .copy-btn svg{width:16px;height:16px}
+.strength-wrap{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.strength-bar{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.strength-fill{height:100%;border-radius:4px;transition:all .4s cubic-bezier(.22,1,.36,1);width:0%}
+.strength-label{font-size:11px;font-weight:500;white-space:nowrap;min-width:80px;text-align:right;color:var(--text-dim);transition:color .4s}
+.strength-details{font-size:10px;color:var(--text-dim);margin-top:-8px;margin-bottom:16px;display:flex;gap:16px;opacity:.7}
+.controls{display:flex;flex-direction:column;gap:12px}
+.control-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.control-row label{font-size:12px;color:var(--text-dim);font-weight:500;min-width:60px}
+.slider-wrap{flex:1;position:relative}
+.slider-wrap input[type=range]{width:100%;height:4px;background:rgba(255,255,255,.08);border:none;border-radius:2px;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer}
+.slider-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--bg);box-shadow:0 0 0 1px var(--border);transition:transform .2s}
+.slider-wrap input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+.slider-value{font-size:12px;font-weight:600;color:var(--text);min-width:28px;text-align:center;font-family:var(--mono)}
+.toggle-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.toggle-btn{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .3s;color:var(--text-dim);font-size:12px;font-family:inherit}
+.toggle-btn:hover{background:var(--surface-hover)}
+.toggle-btn.active{border-color:var(--accent);color:var(--text);background:rgba(0,212,255,.06)}
+.toggle-btn .check{width:16px;height:16px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all .3s;flex-shrink:0}
+.toggle-btn.active .check{background:var(--accent);border-color:var(--accent)}
+.toggle-btn .check svg{width:10px;height:10px;opacity:0;transition:opacity .2s}
+.toggle-btn.active .check svg{opacity:1}
+.action-row{display:flex;gap:8px;margin-top:4px}
+.action-row button{flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;transition:all .3s;font-family:inherit;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:6px}
+.action-row .btn-primary{background:var(--accent);color:#000;border-color:var(--accent)}
+.action-row .btn-primary:hover{box-shadow:0 0 30px rgba(0,212,255,.25);transform:translateY(-1px)}
+.action-row .btn-primary:active{transform:translateY(0)}
+.action-row .btn-secondary{background:rgba(255,255,255,.04);color:var(--text)}
+.action-row .btn-secondary:hover{background:var(--surface-hover);border-color:rgba(255,255,255,.15)}
+.mode-row{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.mode-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text-dim);font-size:11px;cursor:pointer;transition:all .3s;font-family:inherit;font-weight:500}
+.mode-btn:hover{color:var(--text);background:var(--surface-hover)}
+.mode-btn.active{background:rgba(0,212,255,.1);border-color:var(--accent);color:var(--accent)}
+
+.vault-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.vault-header .search-wrap{flex:1;position:relative}
+.vault-header .search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-dim);pointer-events:none}
+.vault-header input{width:100%;padding:8px 12px 8px 34px;background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;outline:none;font-family:inherit;transition:border .2s}
+.vault-header input:focus{border-color:var(--accent)}
+.vault-header input::placeholder{color:var(--text-dim)}
+.vault-count{font-size:11px;color:var(--text-dim);white-space:nowrap}
+.vault-list{display:flex;flex-direction:column;gap:4px;max-height:320px;overflow-y:auto}
+.vault-list::-webkit-scrollbar{width:4px}
+.vault-list::-webkit-scrollbar-track{background:transparent}
+.vault-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.vault-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid transparent;cursor:pointer;transition:all .3s}
+.vault-item:hover{background:var(--surface-hover);border-color:var(--border)}
+.vault-item .vi-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.vault-item .vi-info{flex:1;min-width:0}
+.vault-item .vi-name{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vault-item .vi-site{font-size:10px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vault-item .vi-actions{display:flex;gap:4px;opacity:0;transition:opacity .2s}
+.vault-item:hover .vi-actions{opacity:1}
+.vault-item .vi-actions button{background:none;border:none;color:var(--text-dim);cursor:pointer;padding:4px;border-radius:4px;transition:all .2s;display:flex}
+.vault-item .vi-actions button:hover{color:var(--text);background:var(--surface-hover)}
+.vault-item .vi-actions button.del:hover{color:var(--danger)}
+.vault-empty{text-align:center;padding:32px 16px;color:var(--text-dim);font-size:13px;line-height:1.6}
+.vault-empty svg{width:40px;height:40px;margin-bottom:12px;opacity:.3}
+
+.save-modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:16px}
+.save-modal-overlay.open{display:flex}
+.save-modal{background:#141414;border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:100%;max-width:380px}
+.save-modal h2{font-size:15px;font-weight:500;margin-bottom:16px}
+.save-modal .field{margin-bottom:10px}
+.save-modal .field label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:4px;font-weight:500}
+.save-modal .field input,.save-modal .field select,.save-modal .field textarea{width:100%;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;outline:none;font-family:inherit;transition:border .2s}
+.save-modal .field input:focus,.save-modal .field select:focus,.save-modal .field textarea:focus{border-color:var(--accent)}
+.save-modal .field textarea{resize:vertical;min-height:50px}
+.save-modal .field select option{background:#141414}
+.save-modal .modal-actions{display:flex;gap:8px;margin-top:16px}
+.save-modal .modal-actions button{flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;transition:all .3s;font-family:inherit}
+.save-modal .modal-actions .btn-cancel{background:rgba(255,255,255,.04);color:var(--text-dim)}
+.save-modal .modal-actions .btn-cancel:hover{color:var(--text);background:var(--surface-hover)}
+.save-modal .modal-actions .btn-save{background:var(--accent);color:#000;border-color:var(--accent)}
+.save-modal .modal-actions .btn-save:hover{box-shadow:0 0 20px rgba(0,212,255,.2)}
+
+.view-modal .field{padding:6px 0}
+.view-modal .field .vm-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:2px}
+.view-modal .field .vm-value{font-size:13px;color:var(--text);word-break:break-all}
+.view-modal .field .vm-value.mono{font-family:var(--mono);letter-spacing:.3px}
+.view-modal .field .vm-pw{display:flex;align-items:center;gap:8px}
+.view-modal .field .vm-pw .vm-value{flex:1}
+.view-modal .field .vm-pw button{background:none;border:none;color:var(--text-dim);cursor:pointer;padding:4px;border-radius:4px;display:flex;transition:all .2s}
+.view-modal .field .vm-pw button:hover{color:var(--accent)}
+
+.security-wrap{display:flex;flex-direction:column;gap:12px}
+.security-card{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid var(--border)}
+.security-card .sc-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.security-card .sc-info{flex:1}
+.security-card .sc-label{font-size:12px;font-weight:500;color:var(--text)}
+.security-card .sc-value{font-size:11px;color:var(--text-dim);margin-top:2px}
+.security-card .sc-badge{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600}
+.sc-badge.good{background:rgba(63,185,80,.15);color:var(--success)}
+.sc-badge.warn{background:rgba(245,158,11,.15);color:var(--warning)}
+.sc-badge.bad{background:rgba(239,68,68,.15);color:var(--danger)}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);z-index:200;background:#141414;border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-size:12px;color:var(--text);opacity:0;transition:all .4s cubic-bezier(.22,1,.36,1);pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:var(--success)}
+
+@media(max-width:480px){
+  .app{padding:10px}
+  .card{padding:16px}
+  .toggle-grid{grid-template-columns:1fr}
+  .mode-row{gap:3px}
+  .mode-btn{padding:5px 10px;font-size:10px}
+}
+
+@keyframes ripple{0%{box-shadow:0 0 0 0 rgba(0,212,255,.4)}100%{box-shadow:0 0 0 20px rgba(0,212,255,0)}}
+.ripple{animation:ripple .5s ease-out}
+</style>
+</head>
+<body>
+<div class="bg-layer">
+  <div class="orb"></div>
+  <div class="orb"></div>
+  <div class="orb"></div>
+</div>
+
+<div class="app">
+  <div class="card">
+    <div class="card-header">
+      <h1 id="sectionTitle">Password Generator</h1>
+      <div class="nav">
+        <button class="nav-btn active" data-view="generate">Generate</button>
+        <button class="nav-btn" data-view="vault">Vault</button>
+        <button class="nav-btn" data-view="security">Security</button>
+      </div>
+    </div>
+
+    <div id="viewGenerate">
+      <div class="mode-row" id="modeRow">
+        <button class="mode-btn active" data-mode="random">Random</button>
+        <button class="mode-btn" data-mode="memorable">Memorable</button>
+        <button class="mode-btn" data-mode="pin">PIN</button>
+        <button class="mode-btn" data-mode="passphrase">Passphrase</button>
+      </div>
+
+      <div class="password-display">
+        <textarea id="passwordOutput" readonly rows="1" spellcheck="false">xT#9sP!2qZ@8vN</textarea>
+        <button class="copy-btn" id="copyBtn" title="Copy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+      </div>
+
+      <div class="strength-wrap">
+        <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+        <span class="strength-label" id="strengthLabel">Excellent</span>
+      </div>
+      <div class="strength-details" id="strengthDetails">
+        <span id="entropyDisplay">Entropy: 124 bits</span>
+        <span id="crackDisplay">Crack: 3 trillion yrs</span>
+      </div>
+
+      <div class="controls" id="controls">
+        <div class="control-row">
+          <label>Length</label>
+          <div class="slider-wrap">
+            <input type="range" id="lengthSlider" min="4" max="128" value="24" step="1">
+          </div>
+          <span class="slider-value" id="lengthDisplay">24</span>
+        </div>
+
+        <div class="toggle-grid" id="toggleGrid">
+          <button class="toggle-btn active" data-char="upper"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>A-Z</button>
+          <button class="toggle-btn active" data-char="lower"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>a-z</button>
+          <button class="toggle-btn active" data-char="numbers"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>0-9</button>
+          <button class="toggle-btn active" data-char="symbols"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>!@#$%</button>
+          <button class="toggle-btn" data-char="spaces"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Spaces</button>
+          <button class="toggle-btn" data-char="noambig"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>No ambig</button>
+        </div>
+
+        <div class="action-row">
+          <button class="btn-primary" id="regenerateBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Regenerate</button>
+          <button class="btn-secondary" id="saveBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="viewVault" style="display:none">
+      <div class="vault-header">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="vaultSearch" placeholder="Search vault...">
+        </div>
+        <span class="vault-count" id="vaultCount">0 saved</span>
+      </div>
+      <div class="vault-list" id="vaultList"></div>
+    </div>
+
+    <div id="viewSecurity" style="display:none">
+      <div class="security-wrap" id="securityWrap">
+        <div class="security-card">
+          <div class="sc-icon" style="background:rgba(0,212,255,.1);color:var(--accent)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <div class="sc-info"><div class="sc-label">Security Score</div><div class="sc-value" id="securityScore">Loading...</div></div>
+          <span class="sc-badge" id="securityBadge">--</span>
+        </div>
+        <div class="security-card">
+          <div class="sc-icon" style="background:rgba(239,68,68,.1);color:var(--danger)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          <div class="sc-info"><div class="sc-label">Weak Passwords</div><div class="sc-value" id="weakCount">0 found</div></div>
+        </div>
+        <div class="security-card">
+          <div class="sc-icon" style="background:rgba(245,158,11,.1);color:var(--warning)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+          <div class="sc-info"><div class="sc-label">Reused Passwords</div><div class="sc-value" id="reusedCount">0 found</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="save-modal-overlay" id="saveModal">
+  <div class="save-modal">
+    <h2 id="saveModalTitle">Save Password</h2>
+    <div class="field">
+      <label>Website / App</label>
+      <input type="text" id="saveSite" placeholder="github.com">
+    </div>
+    <div class="field">
+      <label>Username / Email</label>
+      <input type="text" id="saveUsername" placeholder="user@email.com">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="text" id="savePassword" readonly>
+    </div>
+    <div class="field">
+      <label>Category</label>
+      <select id="saveCategory">
+        <option value="General">General</option>
+        <option value="Social">Social</option>
+        <option value="Banking">Banking</option>
+        <option value="Gaming">Gaming</option>
+        <option value="School">School</option>
+        <option value="Work">Work</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Notes</label>
+      <textarea id="saveNotes" rows="2"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="saveCancel">Cancel</button>
+      <button class="btn-save" id="saveConfirm">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="save-modal-overlay" id="viewModal">
+  <div class="save-modal view-modal">
+    <h2 id="viewModalTitle">Entry</h2>
+    <div class="field"><div class="vm-label">Website</div><div class="vm-value" id="viewSite"></div></div>
+    <div class="field"><div class="vm-label">Username</div><div class="vm-value" id="viewUsername"></div></div>
+    <div class="field">
+      <div class="vm-label">Password</div>
+      <div class="vm-pw">
+        <div class="vm-value mono" id="viewPassword"></div>
+        <button id="viewCopyPw" title="Copy password"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+      </div>
+    </div>
+    <div class="field"><div class="vm-label">Category</div><div class="vm-value" id="viewCategory"></div></div>
+    <div class="field"><div class="vm-label">Notes</div><div class="vm-value" id="viewNotes"></div></div>
+    <div class="field"><div class="vm-label">Created</div><div class="vm-value" id="viewDate"></div></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="viewClose">Close</button>
+      <button class="btn-save" id="viewDelete" style="background:var(--danger);color:#fff;border-color:var(--danger)">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const passwordOutput=$('passwordOutput');
+const lengthSlider=$('lengthSlider');
+const lengthDisplay=$('lengthDisplay');
+const strengthFill=$('strengthFill');
+const strengthLabel=$('strengthLabel');
+const entropyDisplay=$('entropyDisplay');
+const crackDisplay=$('crackDisplay');
+const copyBtn=$('copyBtn');
+const regenerateBtn=$('regenerateBtn');
+const saveBtn=$('saveBtn');
+const toggleGrid=$('toggleGrid');
+const modeRow=$('modeRow');
+const vaultSearch=$('vaultSearch');
+const vaultList=$('vaultList');
+const vaultCount=$('vaultCount');
+const viewGenerate=$('viewGenerate');
+const viewVault=$('viewVault');
+const viewSecurity=$('viewSecurity');
+
+let currentMode='random';
+let vault=[];
+
+function loadVault(){
+  try{
+    const raw=localStorage.getItem('pw-vault');
+    if(raw){vault=JSON.parse(raw)}
+  }catch{vault=[]}
+}
+
+function saveVault(){
+  localStorage.setItem('pw-vault',JSON.stringify(vault));
+}
+
+const UPPER='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const LOWER='abcdefghijklmnopqrstuvwxyz';
+const NUMBERS='0123456789';
+const SYMBOLS='!@#$%^&*()_+-=[]{}|;:,.<>?';
+const AMBIG='O0Il1|';
+
+function getCharset(){
+  const toggles=toggleGrid.querySelectorAll('.toggle-btn');
+  let chars='';
+  const state={};
+  toggles.forEach(t=>{
+    const key=t.dataset.char;
+    const active=t.classList.contains('active');
+    state[key]=active;
+  });
+  if(state.upper&&!state.noambig)chars+=UPPER;
+  else if(state.upper)chars+=UPPER.split('').filter(c=>!AMBIG.includes(c)).join('');
+  if(state.lower&&!state.noambig)chars+=LOWER;
+  else if(state.lower)chars+=LOWER.split('').filter(c=>!AMBIG.includes(c)).join('');
+  if(state.numbers&&!state.noambig)chars+=NUMBERS;
+  else if(state.numbers)chars+=NUMBERS.split('').filter(c=>!AMBIG.includes(c)).join('');
+  if(state.symbols)chars+=SYMBOLS;
+  if(state.spaces)chars+=' ';
+  return chars;
+}
+
+function shuffle(s){
+  const a=s.split('');
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+  return a.join('');
+}
+
+function generateRandom(){
+  const len=parseInt(lengthSlider.value);
+  let chars=getCharset();
+  if(!chars.length)chars=UPPER+LOWER+NUMBERS;
+  let pw='';
+  for(let i=0;i<len;i++){pw+=chars[Math.floor(Math.random()*chars.length)]}
+  const toggles=toggleGrid.querySelectorAll('.toggle-btn.active');
+  const types=Array.from(toggles).map(t=>t.dataset.char).filter(k=>['upper','lower','numbers','symbols'].includes(k));
+  types.forEach(t=>{
+    const sets={upper:UPPER,lower:LOWER,numbers:NUMBERS,symbols:SYMBOLS};
+    const idx=Math.floor(Math.random()*len);
+    pw=pw.substring(0,idx)+sets[t][Math.floor(Math.random()*sets[t].length)]+pw.substring(idx+1);
+  });
+  return pw;
+}
+
+const ADJECTIVES=['Purple','Silver','Crimson','Cobalt','Golden','Jade','Coral','Azure','Ivory','Onyx','Crystal','Shadow','Storm','Frost','Ember','Sage','Dawn','Dusk','Echo','Nova'];
+const ANIMALS=['Tiger','Falcon','Dolphin','Wolf','Panda','Raven','Otter','Lynx','Cobra','Fox','Bear','Eagle','Lynx','Koala','Finch','Owl','Viper','Elk','Hawk','Lion'];
+
+function generateMemorable(){
+  const adj=ADJECTIVES[Math.floor(Math.random()*ADJECTIVES.length)];
+  const animal=ANIMALS[Math.floor(Math.random()*ANIMALS.length)];
+  const num=Math.floor(Math.random()*90+10);
+  const syms='!@#$%^&*';
+  const sym=syms[Math.floor(Math.random()*syms.length)];
+  return adj+animal+num+sym;
+}
+
+function generatePIN(){
+  const len=Math.max(4,Math.min(8,parseInt(lengthSlider.value)));
+  let pw='';
+  for(let i=0;i<len;i++){pw+=Math.floor(Math.random()*10)}
+  return pw;
+}
+
+const WORDS=['moon','river','cactus','galaxy','train','ocean','forest','storm','stone','cloud','flame','frost','crane','bloom','drift','ridge','spire','vale','peak','brook','meadow','pine','cove','reef','dune','fern','haze','loom'];
+
+function generatePassphrase(){
+  const count=Math.floor((parseInt(lengthSlider.value))/8)+1;
+  const words=[];
+  for(let i=0;i<Math.min(count,8);i++){words.push(WORDS[Math.floor(Math.random()*WORDS.length)])}
+  return words.join('-');
+}
+
+function generate(){
+  switch(currentMode){
+    case'memorable':return generateMemorable();
+    case'pin':return generatePIN();
+    case'passphrase':return generatePassphrase();
+    default:return generateRandom();
+  }
+}
+
+function entropy(s){
+  const len=s.length;
+  let pool=0;
+  if(/[A-Z]/.test(s))pool+=26;
+  if(/[a-z]/.test(s))pool+=26;
+  if(/[0-9]/.test(s))pool+=10;
+  if(/[^A-Za-z0-9]/.test(s))pool+=32;
+  if(/\s/.test(s))pool+=1;
+  if(currentMode==='pin')pool=10;
+  if(currentMode==='memorable'||currentMode==='passphrase')pool=0;
+  return len*Math.log2(pool||1);
+}
+
+function crackTime(e){
+  if(e<=0)return'instant';
+  if(e<28)return'less than a second';
+  if(e<30)return'~1 second';
+  if(e<40)return'~1 minute';
+  if(e<50)return'~1 hour';
+  if(e<60)return'~1 month';
+  if(e<70)return'~1 year';
+  if(e<80)return'~1 century';
+  if(e<90)return'~10 million yrs';
+  if(e<100)return'~1 billion yrs';
+  if(e<110)return'~10 billion yrs';
+  if(e<120)return'~100 billion yrs';
+  if(e<130)return'~1 trillion yrs';
+  if(e<140)return'~10 trillion yrs';
+  return'∞ (practically infinite)';
+}
+
+function hasPattern(s){
+  if(/(.)\1{2,}/.test(s))return true;
+  if(/012|123|234|345|456|567|678|789|890/.test(s))return true;
+  if(/qwe|wer|ert|rty|tyu|yui|uio|iop|asd|sdf|dfg|fgh|ghj|hjk|jkl|zxc|xcv|cvb|vbn|bnm/i.test(s))return true;
+  return false;
+}
+
+function analyzeStrength(s){
+  const e=entropy(s);
+  const hasPatt=hasPattern(s);
+  const common=['password','123456','qwerty','letmein','admin','welcome','monkey','dragon','master','login','abc123','passw0rd'];
+  const isCommon=common.some(w=>s.toLowerCase().includes(w));
+  let score=Math.min(e/1.4,100);
+  if(hasPatt)score*=0.7;
+  if(isCommon)score*=0.5;
+  if(currentMode==='memorable')score=Math.max(score,75);
+  if(currentMode==='passphrase')score=Math.max(score,85);
+  if(currentMode==='pin')score=Math.min(score,40);
+  const label=score>=80?'Excellent':score>=60?'Strong':score>=40?'Fair':score>=20?'Weak':'Very Weak';
+  return{score:Math.round(score),label,entropy:e,crack:crackTime(e),pattern:hasPatt,common:isCommon};
+}
+
+function updateStrength(){
+  const pw=passwordOutput.value;
+  const a=analyzeStrength(pw);
+  strengthFill.style.width=a.score+'%';
+  const colors=['#ef4444','#f59e0b','#eab308','#3fb950','#00d4ff'];
+  const idx=a.score>=80?4:a.score>=60?3:a.score>=40?2:a.score>=20?1:0;
+  strengthFill.style.background=colors[idx];
+  strengthLabel.textContent=a.label;
+  strengthLabel.style.color=colors[idx];
+  entropyDisplay.textContent='Entropy: '+a.entropy.toFixed(1)+' bits';
+  crackDisplay.textContent='Crack: '+a.crack;
+}
+
+function autoResize(){
+  passwordOutput.style.height='auto';
+  passwordOutput.style.height=passwordOutput.scrollHeight+'px';
+}
+
+function updatePassword(){
+  passwordOutput.value=generate();
+  autoResize();
+  updateStrength();
+}
+
+lengthSlider.addEventListener('input',()=>{
+  lengthDisplay.textContent=lengthSlider.value;
+  if(currentMode==='random')updatePassword();
+  else updatePassword();
+});
+
+toggleGrid.addEventListener('click',e=>{
+  const btn=e.target.closest('.toggle-btn');
+  if(!btn)return;
+  const key=btn.dataset.char;
+  if(key==='noambig'){
+    btn.classList.toggle('active');
+    updatePassword();
+    return;
+  }
+  const isActive=btn.classList.contains('active');
+  if(key==='upper'||key==='lower'||key==='numbers'||key==='symbols'){
+    const anyActive=toggleGrid.querySelectorAll('.toggle-btn.active[data-char]');
+    const essential=Array.from(anyActive).filter(t=>['upper','lower','numbers','symbols'].includes(t.dataset.char));
+    if(essential.length<=1&&isActive){
+      btn.classList.add('active');
+      return;
+    }
+  }
+  btn.classList.toggle('active');
+  updatePassword();
+});
+
+modeRow.addEventListener('click',e=>{
+  const btn=e.target.closest('.mode-btn');
+  if(!btn)return;
+  modeRow.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentMode=btn.dataset.mode;
+  const isRandom=currentMode==='random';
+  document.getElementById('controls').style.display=isRandom?'flex':'none';
+  const sliderRow=document.querySelector('.control-row');
+  sliderRow.style.display=isRandom?'flex':currentMode==='pin'?'flex':'none';
+  if(currentMode==='pin'){lengthSlider.max='8';lengthSlider.value='6';lengthDisplay.textContent='6'}
+  else{lengthSlider.max='128';lengthSlider.value='24';lengthDisplay.textContent='24'}
+  updatePassword();
+});
+
+copyBtn.addEventListener('click',()=>{
+  if(!passwordOutput.value)return;
+  navigator.clipboard.writeText(passwordOutput.value).then(()=>{
+    copyBtn.classList.add('copied');
+    copyBtn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    copyBtn.classList.add('ripple');
+    showToast('Copied to clipboard','success');
+    setTimeout(()=>{
+      copyBtn.classList.remove('copied','ripple');
+      copyBtn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+    },2000);
+  }).catch(()=>{});
+});
+
+regenerateBtn.addEventListener('click',updatePassword);
+
+saveBtn.addEventListener('click',()=>{
+  $('savePassword').value=passwordOutput.value;
+  $('saveModalTitle').textContent='Save Password';
+  $('saveSite').value='';
+  $('saveUsername').value='';
+  $('saveNotes').value='';
+  $('saveCategory').value='General';
+  $('saveModal').classList.add('open');
+});
+
+$('saveCancel').addEventListener('click',()=>$('saveModal').classList.remove('open'));
+$('saveModal').addEventListener('click',e=>{if(e.target===$('saveModal'))$('saveModal').classList.remove('open')});
+$('saveConfirm').addEventListener('click',()=>{
+  const site=$('saveSite').value.trim();
+  const username=$('saveUsername').value.trim();
+  const password=$('savePassword').value;
+  const category=$('saveCategory').value;
+  const notes=$('saveNotes').value.trim();
+  if(!site&&!username){showToast('Enter a site or username','');return}
+  vault.push({id:Date.now(),site,username,password,category,notes,created:new Date().toISOString()});
+  saveVault();
+  $('saveModal').classList.remove('open');
+  showToast('Password saved','success');
+  renderVault();
+  updateSecurity();
+});
+
+$('viewClose').addEventListener('click',()=>$('viewModal').classList.remove('open'));
+$('viewModal').addEventListener('click',e=>{if(e.target===$('viewModal'))$('viewModal').classList.remove('open')});
+$('viewCopyPw').addEventListener('click',()=>{
+  navigator.clipboard.writeText($('viewPassword').textContent).then(()=>showToast('Password copied','success'));
+});
+$('viewDelete').addEventListener('click',()=>{
+  const id=parseInt($('viewDelete').dataset.id);
+  vault=vault.filter(e=>e.id!==id);
+  saveVault();
+  $('viewModal').classList.remove('open');
+  showToast('Deleted','');
+  renderVault();
+  updateSecurity();
+});
+
+vaultSearch.addEventListener('input',renderVault);
+
+function escapeHtml(s){
+  const d=document.createElement('div');
+  d.textContent=s;
+  return d.innerHTML;
+}
+
+function renderVault(){
+  const q=vaultSearch.value.toLowerCase();
+  const filtered=vault.filter(e=>
+    e.site.toLowerCase().includes(q)||
+    e.username.toLowerCase().includes(q)||
+    e.category.toLowerCase().includes(q)||
+    e.notes.toLowerCase().includes(q)
+  );
+  vaultCount.textContent=filtered.length+' saved';
+  if(filtered.length===0){
+    vaultList.innerHTML=`<div class="vault-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      ${q?'No results found':'Vault is empty — save your first password'}
+    </div>`;
+    return;
+  }
+  const categoryColors={General:'#888',Social:'#3fb950',Banking:'#f59e0b',Gaming:'#ef4444',School:'#8b5cf6',Work:'#00d4ff'};
+  vaultList.innerHTML=filtered.map(e=>`<div class="vault-item" data-id="${e.id}">
+    <div class="vi-icon" style="background:${categoryColors[e.category]||'#888'}22;color:${categoryColors[e.category]||'#888'}">${e.category[0]||'G'}</div>
+    <div class="vi-info">
+      <div class="vi-name">${escapeHtml(e.site||'No site')}</div>
+      <div class="vi-site">${escapeHtml(e.username||'No username')} · ${e.category}</div>
+    </div>
+    <div class="vi-actions">
+      <button class="vi-view" title="View"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      <button class="vi-del" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+    </div>
+  </div>`).join('');
+  vaultList.querySelectorAll('.vault-item').forEach(el=>{
+    el.addEventListener('click',e=>{
+      if(e.target.closest('.vi-actions'))return;
+      const entry=vault.find(i=>i.id===parseInt(el.dataset.id));
+      if(!entry)return;
+      $('viewModalTitle').textContent=entry.site||'Untitled';
+      $('viewSite').textContent=entry.site||'—';
+      $('viewUsername').textContent=entry.username||'—';
+      $('viewPassword').textContent=entry.password;
+      $('viewCategory').textContent=entry.category;
+      $('viewNotes').textContent=entry.notes||'—';
+      $('viewDate').textContent=new Date(entry.created).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      $('viewDelete').dataset.id=entry.id;
+      $('viewModal').classList.add('open');
+    });
+    el.querySelector('.vi-view').addEventListener('click',e=>{
+      e.stopPropagation();
+      el.click();
+    });
+    el.querySelector('.vi-del').addEventListener('click',e=>{
+      e.stopPropagation();
+      const id=parseInt(el.dataset.id);
+      vault=vault.filter(i=>i.id!==id);
+      saveVault();
+      renderVault();
+      updateSecurity();
+      showToast('Deleted','');
+    });
+  });
+}
+
+function updateSecurity(){
+  const total=vault.length;
+  if(total===0){
+    $('securityScore').textContent='No passwords saved yet';
+    $('securityBadge').textContent='—';
+    $('weakCount').textContent='0 found';
+    $('reusedCount').textContent='0 found';
+    return;
+  }
+  let weak=0;
+  const pwMap={};
+  vault.forEach(e=>{
+    const a=analyzeStrength(e.password);
+    if(a.score<40)weak++;
+    pwMap[e.password]=(pwMap[e.password]||0)+1;
+  });
+  let reused=0;
+  Object.values(pwMap).forEach(c=>{if(c>1)reused+=c-1});
+  const avgScore=vault.reduce((s,e)=>s+analyzeStrength(e.password).score,0)/total;
+  const finalScore=Math.round(avgScore-(reused*3)-(weak*2));
+  const clamped=Math.max(0,Math.min(100,finalScore));
+  $('securityScore').textContent=clamped+'%';
+  const badge=$('securityBadge');
+  if(clamped>=70){badge.textContent='Good';badge.className='sc-badge good'}
+  else if(clamped>=40){badge.textContent='Needs work';badge.className='sc-badge warn'}
+  else{badge.textContent='Critical';badge.className='sc-badge bad'}
+  $('weakCount').textContent=weak+' found';
+  $('reusedCount').textContent=reused+' found';
+}
+
+function showToast(msg,type){
+  const t=$('toast');
+  t.textContent=msg;
+  t.className='toast'+(type?' '+type:'');
+  requestAnimationFrame(()=>{t.classList.add('show')});
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const view=btn.dataset.view;
+    viewGenerate.style.display=view==='generate'?'block':'none';
+    viewVault.style.display=view==='vault'?'block':'none';
+    viewSecurity.style.display=view==='security'?'block':'none';
+    $('sectionTitle').textContent=view==='generate'?'Password Generator':view==='vault'?'Vault':'Security Dashboard';
+    if(view==='vault')renderVault();
+    if(view==='security')updateSecurity();
+  });
+});
+
+loadVault();
+updatePassword();
+renderVault();
+updateSecurity();
+</script>
+</body>
+</html>
